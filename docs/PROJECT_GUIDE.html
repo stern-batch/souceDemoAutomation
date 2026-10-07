@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>SauceDemo QA Assessment – Project Guide</title><style>
+  @page { size: A4; margin: 16mm 14mm; }
+  body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5;
+         color: #1f2328; max-width: 960px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 22pt; border-bottom: 3px solid #2da44e; padding-bottom: 6px; margin-top: 0; }
+  h2 { font-size: 15pt; border-bottom: 1px solid #d0d7de; padding-bottom: 4px; margin-top: 28px; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; margin-top: 20px; page-break-after: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 16px; font-size: 9.5pt; page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  th, td { border: 1px solid #d0d7de; padding: 5px 8px; text-align: left; vertical-align: top; }
+  th { background: #f0f3f6; }
+  td:first-child { white-space: nowrap; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  code { font-family: "JetBrains Mono", Consolas, monospace; font-size: 9pt; background: #f0f3f6; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 10px 12px; overflow-x: auto;
+        white-space: pre-wrap; word-break: break-word; page-break-inside: avoid; }
+  pre code { background: none; padding: 0; font-size: 8.8pt; }
+  blockquote { border-left: 4px solid #2da44e; margin: 12px 0; padding: 6px 12px; background: #f3fbf5; color: #24292f; }
+  hr { border: none; border-top: 1px solid #d0d7de; margin: 22px 0; }
+  a { color: #0969da; text-decoration: none; }
+  img { max-width: 100%; border: 1px solid #d0d7de; }
+  td img { width: 48%; height: auto; margin: 2px 1% 2px 0; vertical-align: top; }
+</style></head>
+<body><h1>SauceDemo QA Assessment: Project Guide</h1>
+<ul>
+<li><strong>Project:</strong> <code>saucedemo-qa-assessment</code></li>
+<li><strong>Application under test:</strong> <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li><strong>Stack:</strong> Playwright 1.63 · JavaScript (CommonJS, JSDoc + <code>// @ts-check</code>) · Node.js 22 · GitHub Actions</li>
+<li><strong>Primary browser:</strong> Google Chrome (stable channel), with Firefox available as an opt-in cross-browser run</li>
+<li><strong>Last verified:</strong> 7 Oct 2026 on Google Chrome 146.0.7680.164.<ul>
+<li>Core suite: 5/5 pass.</li>
+<li>Regression suite: 18/18 pass.</li>
+<li>Known-defect suite: 6/6 fail, which is expected because each test fails until its bug is fixed.</li>
+<li>Core and regression also pass on Firefox 155.</li>
+</ul>
+</li>
+</ul>
+<p>This guide covers everything in the project: the purpose of each folder and file, how to install and run the automation, how the tests are designed, and how to extend, debug, and publish them. The assessment write-up itself (defects, AI log, QA strategy) is in <code>SUBMISSION.md</code>.</p>
+<hr>
+<h2>1. What this project contains</h2>
+<table>
+<thead>
+<tr>
+<th>Deliverable</th>
+<th>Where</th>
+<th>Assessment task</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Exploratory testing probes (re-runnable)</td>
+<td><code>explore/</code></td>
+<td>Task A</td>
+</tr>
+<tr>
+<td>Defect evidence screenshots</td>
+<td><code>evidence/</code></td>
+<td>Task B</td>
+</tr>
+<tr>
+<td>Automated test suites: core E2E + negatives, regression, known defects (all 18 test cases)</td>
+<td><code>pages/</code>, <code>tests/</code>, <code>utils/</code>, <code>playwright.config.js</code></td>
+<td>Task C</td>
+</tr>
+<tr>
+<td>CI pipeline</td>
+<td><code>.github/workflows/playwright.yml</code></td>
+<td>Task C</td>
+</tr>
+<tr>
+<td>Full submission (defects, AI log, strategy, tools)</td>
+<td><code>SUBMISSION.md</code></td>
+<td>Tasks A–D</td>
+</tr>
+<tr>
+<td>Human-readable test cases (18 cases, steps to reproduce, expected/actual, status)</td>
+<td><code>docs/TEST_CASES.md</code> / <code>.xlsx</code> / <code>.pdf</code></td>
+<td>Tasks A–C</td>
+</tr>
+<tr>
+<td>Quick-start for reviewers</td>
+<td><code>README.md</code></td>
+<td>Task C</td>
+</tr>
+<tr>
+<td>This guide</td>
+<td><code>docs/PROJECT_GUIDE.*</code></td>
+<td>—</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. Quick start (5 minutes)</h2>
+<pre><code class="language-bash"># 1. Go to the project
+cd ~/personal/saucedemo-qa-assessment
+
+# 2. Install dependencies (exact versions from package-lock.json)
+npm ci
+
+# 3. Make sure Google Chrome is available, plus ffmpeg (used to record videos of failed tests)
+npx playwright install chrome ffmpeg
+
+# 4. Run the core suite (headless, Google Chrome)
+npm test
+
+# 5. Open the HTML report
+npm run report
+
+# 6. Optional: the other two suites
+npm run test:regression   # 18 tests, all pass
+npm run test:defects      # 6 tests, all FAIL on purpose (one per known defect case)
+</code></pre>
+<p>Expected output of step 4:</p>
+<pre><code>Running 5 tests using 5 workers
+  ✓ [chrome] › checkout.e2e.spec.js › user can buy two products and totals are calculated correctly @smoke
+  ✓ [chrome] › negative.spec.js › locked-out user is blocked with a clear message and stays on login
+  ✓ [chrome] › negative.spec.js › checkout is blocked when First Name is missing
+  ✓ [chrome] › negative.spec.js › checkout is blocked when Last Name is missing
+  ✓ [chrome] › negative.spec.js › checkout is blocked when Postal Code is missing
+  5 passed (~3s)
+</code></pre>
+<p>For a cross-browser run, use <code>npm run test:all-browsers</code>. It runs the same 5 tests on Chrome and Firefox, 10 in total, and needs <code>npx playwright install firefox</code> once.</p>
+<hr>
+<h2>3. Prerequisites</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Version</th>
+<th>Check with</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js</td>
+<td>18 or newer (tested on 22.22)</td>
+<td><code>node -v</code></td>
+</tr>
+<tr>
+<td>npm</td>
+<td>9 or newer</td>
+<td><code>npm -v</code></td>
+</tr>
+<tr>
+<td>Google Chrome</td>
+<td>stable channel (tested on 146)</td>
+<td><code>google-chrome --version</code> (Linux), <em>chrome://version</em> (any OS)</td>
+</tr>
+<tr>
+<td>Internet access</td>
+<td>to <code>www.saucedemo.com</code> and <code>registry.npmjs.org</code></td>
+<td>open the site in a browser</td>
+</tr>
+<tr>
+<td>OS</td>
+<td>Linux, macOS or Windows</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<p><strong>About Chrome vs Chromium:</strong> the suite uses Playwright&#39;s <code>channel: &#39;chrome&#39;</code>, which launches the <strong>branded Google Chrome</strong> installed on the machine, from its standard install location. It does not use the Chromium build bundled with Playwright. If Chrome isn&#39;t installed, <code>npx playwright install chrome</code> installs the current stable Chrome. On Linux this uses the system package manager and may ask for <code>sudo</code>.</p>
+<hr>
+<h2>4. Folder and file reference</h2>
+<pre><code>saucedemo-qa-assessment/
+├── .github/workflows/playwright.yml   CI pipeline
+├── docs/                              Test cases (MD, XLSX, PDF), this guide and the submission
+├── evidence/                          Screenshots proving each defect
+├── explore/                           Exploratory-testing probes (not regression)
+├── pages/                             Page Object Model classes
+├── tests/                             Core test specs + fixtures + test data
+│   ├── data/                          Users, products, customer, tax rate
+│   ├── regression/                    Regression suite (site works correctly today)
+│   └── defects/                       Known-defect suite (red until each bug is fixed)
+├── utils/                             Small shared helpers
+├── playwright.config.js               Playwright configuration (Chrome default)
+├── package.json / package-lock.json   Dependencies and npm scripts
+├── .gitignore                         Files kept out of git
+├── README.md                          Short reviewer-facing instructions
+└── SUBMISSION.md                      Full assessment submission
+</code></pre>
+<p>Generated at runtime (git-ignored): <code>node_modules/</code>, plus one results folder and one report folder per suite: <code>test-results/</code> and <code>playwright-report/</code> (core), <code>…-regression/</code>, and <code>…-defects/</code>.</p>
+<h3>4.1 <code>pages/</code>: Page Object Model</h3>
+<p><strong>Purpose:</strong> each class wraps one screen of SauceDemo. It exposes <em>locators</em> (how to find elements) and <em>actions</em> (what a user does). Tests read like user stories and never contain raw selectors, so a UI change is fixed in one place.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Screen</th>
+<th>Key members</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>LoginPage.js</code></td>
+<td>Login (<code>/</code>)</td>
+<td><code>goto()</code>, <code>login(user, pass)</code>, <code>error</code></td>
+</tr>
+<tr>
+<td><code>HeaderComponent.js</code></td>
+<td>Top bar and side menu on every logged-in page</td>
+<td><code>cartLink</code>, <code>cartBadge</code>, <code>openCart()</code>, <code>logout()</code>, <code>resetAppState()</code></td>
+</tr>
+<tr>
+<td><code>InventoryPage.js</code></td>
+<td>Products (<code>/inventory.html</code>)</td>
+<td><code>expectLoaded()</code>, <code>item(name)</code>, <code>priceInCents(name)</code>, <code>addToCart(name)</code>, <code>sortBy(&#39;az&#39;|&#39;za&#39;|&#39;lohi&#39;|&#39;hilo&#39;)</code>, <code>names()</code>, <code>pricesInCents()</code>, <code>openProduct(name)</code>, <code>removeButtons</code></td>
+</tr>
+<tr>
+<td><code>ProductDetailPage.js</code></td>
+<td>Product detail (<code>/inventory-item.html?id=…</code>)</td>
+<td><code>goto(id)</code>, <code>name</code>, <code>price</code>, <code>priceInCents()</code>, <code>addToCartButton</code></td>
+</tr>
+<tr>
+<td><code>CartPage.js</code></td>
+<td>Cart (<code>/cart.html</code>)</td>
+<td><code>expectLoaded()</code>, <code>readItems()</code>, <code>checkout()</code>; also exports the shared <code>readLineItems()</code> and the JSDoc <code>LineItem</code> typedef</td>
+</tr>
+<tr>
+<td><code>CheckoutInfoPage.js</code></td>
+<td>Checkout: Your Information (<code>/checkout-step-one.html</code>)</td>
+<td><code>goto()</code>, <code>expectLoaded()</code>, <code>submit({firstName, lastName, postalCode})</code>, <code>error</code></td>
+</tr>
+<tr>
+<td><code>CheckoutOverviewPage.js</code></td>
+<td>Checkout: Overview (<code>/checkout-step-two.html</code>)</td>
+<td><code>expectLoaded()</code>, <code>lineItems</code>, <code>readItems()</code>, <code>readSummary()</code> → <code>{subtotalCents, taxCents, totalCents}</code>, <code>finish()</code></td>
+</tr>
+<tr>
+<td><code>CheckoutCompletePage.js</code></td>
+<td>Checkout: Complete (<code>/checkout-complete.html</code>)</td>
+<td><code>expectOrderConfirmed()</code>, <code>backHome()</code></td>
+</tr>
+</tbody></table>
+<p>Conventions used throughout:</p>
+<ul>
+<li><strong>JavaScript style:</strong> CommonJS (<code>require</code> / <code>module.exports</code>). Each file starts with <code>// @ts-check</code>, and parameters are typed with JSDoc (e.g. <code>/** @param {import(&#39;@playwright/test&#39;).Page} page */</code>). This gives autocomplete and type warnings in VS Code or Cursor with no build step and no TypeScript dependency.</li>
+<li><strong>Selectors:</strong> <code>getByTestId(...)</code> resolves the site&#39;s <code>data-test</code> attributes (configured in <code>playwright.config.js</code>). Buttons use <code>getByRole(&#39;button&#39;, { name })</code>.</li>
+<li><strong>Product cards</strong> are found by their visible product name (<code>item(&#39;Sauce Labs Backpack&#39;)</code>), never by position.</li>
+<li><strong><code>expectLoaded()</code></strong> asserts the URL and page title before anything is read. This prevents reading the <em>previous</em> page during navigation, a race condition found during exploration.</li>
+</ul>
+<h3>4.2 <code>tests/</code>: the three automated suites</h3>
+<p><strong>Purpose:</strong> the automated checks for all 18 test cases. They are split into three suites that run separately, so tests for known bugs can never turn the main run red.</p>
+<table>
+<thead>
+<tr>
+<th>Suite</th>
+<th>Command</th>
+<th>Purpose</th>
+<th>Result today</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Core</strong></td>
+<td><code>npm test</code></td>
+<td>The assessment&#39;s end-to-end flow plus negative tests. Must always pass.</td>
+<td>✅ 5/5</td>
+</tr>
+<tr>
+<td><strong>Regression</strong></td>
+<td><code>npm run test:regression</code></td>
+<td>Behaviour that works correctly today. Must always pass; a failure means something broke.</td>
+<td>✅ 18/18</td>
+</tr>
+<tr>
+<td><strong>Known defects</strong></td>
+<td><code>npm run test:defects</code></td>
+<td>Each test asserts the <strong>correct</strong> behaviour for one defect case, so it <strong>fails while the bug exists</strong> and turns green when it is fixed.</td>
+<td>❌ 6/6 fail (expected)</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Suite</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>fixtures.js</code></td>
+<td>—</td>
+<td>Extends Playwright&#39;s <code>test</code> with ready-made page objects (<code>loginPage</code>, <code>inventoryPage</code>, <code>cartPage</code>, <code>productDetailPage</code>, …) and a <strong><code>loggedIn</code></strong> fixture that logs in as <code>standard_user</code> through the UI and waits for the Products page. Tests just request what they need.</td>
+</tr>
+<tr>
+<td><code>data/testData.js</code></td>
+<td>—</td>
+<td>Single source of test data: users (<code>standard</code>, <code>lockedOut</code>, <code>visual</code>), all six product names, customer details, and <code>TAX_RATE = 0.08</code>. Passwords can be overridden with <code>SAUCE_PASSWORD</code>.</td>
+</tr>
+<tr>
+<td><code>checkout.e2e.spec.js</code></td>
+<td>Core</td>
+<td><strong>Happy-path purchase journey</strong> (TC-11, tag <code>@smoke</code>). See section 5.1.</td>
+</tr>
+<tr>
+<td><code>negative.spec.js</code></td>
+<td>Core</td>
+<td>Locked-out login (TC-01), and checkout blocked for each missing required field (TC-13 to TC-15). See section 5.2.</td>
+</tr>
+<tr>
+<td><code>regression/login.spec.js</code></td>
+<td>Regression</td>
+<td>TC-02: four wrong or missing credential cases, plus a check that the password field is masked</td>
+</tr>
+<tr>
+<td><code>regression/session.spec.js</code></td>
+<td>Regression</td>
+<td>TC-03: five protected URLs show the login form. TC-04: Back after logout.</td>
+</tr>
+<tr>
+<td><code>regression/catalogue.spec.js</code></td>
+<td>Regression</td>
+<td>TC-06: four sort orders. TC-07: list price matches the detail page. TC-09: no horizontal scroll at 375 px.</td>
+</tr>
+<tr>
+<td><code>regression/checkout.spec.js</code></td>
+<td>Regression</td>
+<td>TC-12: three-item totals of $95.97, $7.68 and $103.65</td>
+</tr>
+<tr>
+<td><code>defects/known-defects.spec.js</code></td>
+<td>Known defects</td>
+<td>One test per defect case: <code>[D1] TC-18</code>, <code>[D2] TC-16</code>, <code>[D2] TC-17</code>, <code>[D3] TC-05</code>, <code>[D4] TC-10</code>, <code>[D5] TC-08</code>. See section 5.4.</td>
+</tr>
+</tbody></table>
+<p>Every test title starts with its test case ID (and defect ID), so a red test in the report can be traced directly to <code>docs/TEST_CASES.md</code>.</p>
+<h3>4.3 <code>docs/TEST_CASES.*</code>: human-readable test cases</h3>
+<p><strong>Purpose:</strong> every test case written out in plain language, so that someone who doesn&#39;t read code can run the tests by hand. Each case has an ID, module, title, type, priority, preconditions, test data, numbered steps to reproduce, expected result, actual result, status, and (where relevant) the defect ID, evidence screenshot, and name of the automated test.</p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>TEST_CASES.md</code></td>
+<td>Reading on GitHub (index table with links to each case)</td>
+</tr>
+<tr>
+<td><code>TEST_CASES.xlsx</code></td>
+<td>Test management: a <em>Summary</em> sheet with pass/fail per module and a filterable <em>Test Cases</em> sheet</td>
+</tr>
+<tr>
+<td><code>TEST_CASES.pdf</code></td>
+<td>Sharing or printing</td>
+</tr>
+</tbody></table>
+<p>The 18 cases are TC-01 to TC-18, and all of them are automated. Each case shows its suite, the name of its automated test, the number of automated tests, and the command that runs it. 12 pass, and the 6 failures correspond to defects D1–D5.</p>
+<p>The 18 cases make <strong>29 automated tests</strong>. TC-02 (5 login messages), TC-03 (5 protected pages) and TC-06 (4 sort options) each run one test per variation, and every other case has one test. So the suites contain 5 core tests, 18 regression tests and 6 known-defect tests.</p>
+<h3>4.4 <code>utils/</code></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>money.js</code></td>
+<td><code>toCents(&quot;$29.99&quot;) → 2999</code>. All money comparisons use integer cents, so floating-point rounding (e.g. <code>0.1 + 0.2</code>) can never cause false failures.</td>
+</tr>
+</tbody></table>
+<h3>4.5 <code>explore/</code>: exploratory-testing probes (Task A)</h3>
+<p><strong>Purpose:</strong> the scripts used to <em>investigate</em> the application, not to guard against regressions. Each probe tests one risk hypothesis (H01–H17) and prints what it observed as JSON. Every claim in the defect report can be re-checked by re-running them.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>explore.config.js</code></td>
+<td>Separate Playwright config: Google Chrome, single worker, list reporter, only runs <code>*.probe.js</code>. Keeps probes out of the regression suite.</td>
+</tr>
+<tr>
+<td><code>hypotheses.probe.js</code></td>
+<td>First round, H01–H13: empty-cart checkout, deep-linking, route protection, session cookie, cart persistence, Reset App State, field validation, tax maths, sorting, accessibility, mobile layout, login messages, seeded-account comparison. The original H06 and H07 are marked <code>test.skip</code> because they had the 30-second wait bug (C1 in <code>SUBMISSION.md</code>) and were replaced by the fixed versions in <code>followup.probe.js</code>.</td>
+</tr>
+<tr>
+<td><code>followup.probe.js</code></td>
+<td>Second round: corrected versions of the two probes that timed out (H06, H07), plus H14 (invalid product id), H15 (cart carried to another user), H16 (Back after order).</td>
+</tr>
+<tr>
+<td><code>followup2.probe.js</code></td>
+<td>Third round: clean D4 evidence with the menu closed, H14b (blank checkout page), H17 (Dynamic Catalog menu).</td>
+</tr>
+<tr>
+<td><code>*.png</code></td>
+<td>Scratch screenshots that are not defect evidence (mobile layout, invalid-id page, menu).</td>
+</tr>
+<tr>
+<td><code>results.json</code></td>
+<td>Last JSON output of <code>hypotheses.probe.js</code> (git-ignored, regenerated on each run).</td>
+</tr>
+</tbody></table>
+<p>Run all probes:</p>
+<pre><code class="language-bash">npm run explore
+</code></pre>
+<p>Run one probe file:</p>
+<pre><code class="language-bash">npx playwright test --config explore/explore.config.js explore/followup.probe.js
+</code></pre>
+<blockquote>
+<p>Probes intentionally <strong>record</strong> behaviour instead of asserting it, so they &quot;pass&quot; even when they find a bug. Read the printed <code>### Hxx</code> JSON blocks for the results. Running the probes regenerates the screenshots in <code>evidence/</code>, and each evidence file is written by exactly one probe.</p>
+</blockquote>
+<h3>4.6 <code>evidence/</code>: defect screenshots (Task B)</h3>
+<p><strong>Purpose:</strong> visual proof for each defect in <code>SUBMISSION.md</code>. The file-name prefix is the defect number. All screenshots were captured in Google Chrome 146.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Shows</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>D1a-empty-cart-overview.png</code></td>
+<td>Checkout overview with <code>Total: $0.00</code> and an empty cart</td>
+</tr>
+<tr>
+<td><code>D1b-empty-cart-order-complete.png</code></td>
+<td>&quot;Thank you for your order!&quot; for that empty cart</td>
+</tr>
+<tr>
+<td><code>D2a-deeplink-overview-no-info.png</code></td>
+<td>Overview reached by URL without entering customer info</td>
+</tr>
+<tr>
+<td><code>D2b-whitespace-only-info.png</code></td>
+<td>Spaces typed into First/Last/Postal</td>
+</tr>
+<tr>
+<td><code>D2c-whitespace-accepted-overview.png</code></td>
+<td>Those spaces accepted; Finish available</td>
+</tr>
+<tr>
+<td><code>D3-cart-carried-to-different-user.png</code></td>
+<td>Second user sees the first user&#39;s Fleece Jacket</td>
+</tr>
+<tr>
+<td><code>D4-reset-state-stale-remove-buttons.png</code></td>
+<td>Badge cleared but two &quot;Remove&quot; buttons remain</td>
+</tr>
+<tr>
+<td><code>D5a-item-not-found-add-to-cart.png</code></td>
+<td>Placeholder &quot;ITEM NOT FOUND&quot; product added, badge = 1</td>
+</tr>
+<tr>
+<td><code>D5b-cart-after-invalid-item.png</code></td>
+<td>Badge 1, cart lists nothing</td>
+</tr>
+<tr>
+<td><code>D5c-checkout-overview-crash.png</code></td>
+<td>Checkout overview renders a blank page</td>
+</tr>
+</tbody></table>
+<h3>4.7 <code>.github/workflows/</code>: Continuous Integration</h3>
+<p><strong><code>playwright.yml</code></strong> runs on every push to <code>main</code>, on every pull request, and manually through <em>Run workflow</em>. The manual run has an <strong>&quot;Also run on Firefox&quot;</strong> checkbox. Its steps:</p>
+<ol>
+<li>Check out the code and set up Node 22 with an npm cache.</li>
+<li>Run <code>npm ci</code>.</li>
+<li>Run <code>npx playwright install --with-deps chrome ffmpeg</code>, which installs branded Google Chrome stable and the video recorder on the CI runner.</li>
+<li>Install Firefox, only if the Firefox checkbox was ticked.</li>
+<li>Run <code>npm run lint</code>, which syntax-checks every JavaScript file.</li>
+<li><strong>Core suite</strong> (<code>npm test</code>) is <strong>blocking</strong>: a failure fails the build.</li>
+<li><strong>Regression suite</strong> (<code>npm run test:regression</code>) is <strong>blocking</strong>.</li>
+<li><strong>Known-defect suite</strong> (<code>npm run test:defects</code>) is <strong>informational</strong>. It has <code>continue-on-error: true</code>, so its expected failures never fail the build, and it gets no retries. <code>CI=true</code> gives the other suites 1 retry, 2 workers, and <code>forbidOnly</code>.</li>
+<li>Upload all three HTML reports as one artifact, <code>playwright-reports</code>, kept for 14 days, even when tests fail.</li>
+</ol>
+<p>To see results on GitHub, open the repo → <strong>Actions</strong> → the run → <strong>Artifacts</strong> → download <code>playwright-reports</code>, unzip it, and open <code>index.html</code> in the folder for the suite you want. A green build with a yellow &quot;known-defect&quot; step means the bugs are still present. When that step turns green, a defect has been fixed.</p>
+<h3>4.8 Root files</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>playwright.config.js</code></td>
+<td>Suite selection (<code>SUITE</code>), test directory, timeouts, reporters, browser projects (Chrome by default, Firefox when <code>ALL_BROWSERS=1</code>), base URL, and the <code>data-test</code> test-id attribute (details in section 6).</td>
+</tr>
+<tr>
+<td><code>package.json</code></td>
+<td>The only dependency is <code>@playwright/test</code>. Also holds the npm scripts (section 7).</td>
+</tr>
+<tr>
+<td><code>package-lock.json</code></td>
+<td>Exact dependency versions so <code>npm ci</code> is reproducible.</td>
+</tr>
+<tr>
+<td><code>.gitignore</code></td>
+<td>Excludes <code>node_modules</code>, reports, test results, <code>explore/results.json</code>, and <code>.env</code>.</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>Concise run instructions for reviewers.</td>
+</tr>
+<tr>
+<td><code>SUBMISSION.md</code></td>
+<td>The assessment answer: summary, risk ranking, hypotheses, AI prompt log, 5 defects, automation notes, QA strategy, tools, evidence index.</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. What the automated tests verify</h2>
+<h3>5.1 <code>checkout.e2e.spec.js</code>: purchase journey (<code>@smoke</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Log in as <code>standard_user</code> (fixture)</td>
+<td>URL is <code>/inventory.html</code> and title is &quot;Products&quot;</td>
+</tr>
+<tr>
+<td>Read catalogue prices for <em>Sauce Labs Backpack</em> and <em>Sauce Labs Fleece Jacket</em>, add both</td>
+<td>Each button changes to &quot;Remove&quot;; cart badge = <strong>2</strong></td>
+</tr>
+<tr>
+<td>Open cart</td>
+<td>Exactly 2 rows. Names, prices (in cents) and quantity 1 <strong>equal</strong> the catalogue values</td>
+</tr>
+<tr>
+<td>Checkout and submit customer info</td>
+<td>Lands on &quot;Checkout: Your Information&quot;, then on the Overview</td>
+</tr>
+<tr>
+<td>Overview</td>
+<td>Same 2 items. <strong>Item total = sum of prices</strong>, <strong>tax = round(item total × 8 %)</strong>, <strong>total = item total + tax</strong></td>
+</tr>
+<tr>
+<td>Finish</td>
+<td>URL <code>/checkout-complete.html</code>, title &quot;Checkout: Complete!&quot;, header &quot;Thank you for your order!&quot;, badge hidden</td>
+</tr>
+<tr>
+<td>Back Home and open cart</td>
+<td>No &quot;Remove&quot; buttons on Products; cart has <strong>0</strong> rows</td>
+</tr>
+</tbody></table>
+<p>The journey is split into <code>test.step(...)</code> blocks, so the HTML report and traces show exactly which stage failed.</p>
+<h3>5.2 <code>negative.spec.js</code></h3>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Locked-out user</td>
+<td>Error text is exactly <code>Epic sadface: Sorry, this user has been locked out.</code>, the URL stays on the login page, and no product list is rendered</td>
+</tr>
+<tr>
+<td>Missing First Name</td>
+<td><code>Error: First Name is required</code>, stays on step one</td>
+</tr>
+<tr>
+<td>Missing Last Name</td>
+<td><code>Error: Last Name is required</code>, stays on step one</td>
+</tr>
+<tr>
+<td>Missing Postal Code</td>
+<td><code>Error: Postal Code is required</code>, stays on step one</td>
+</tr>
+</tbody></table>
+<h3>5.3 Regression suite (<code>tests/regression/</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Test case</th>
+<th>Assertion</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TC-02 Login validation (4 tests + masked password)</td>
+<td>Exact error text for: both empty, password empty, wrong password, wrong-case username. Login form stays visible, and the password field has <code>type=&quot;password&quot;</code></td>
+</tr>
+<tr>
+<td>TC-03 Protected pages (5 tests)</td>
+<td>Each URL shows the login button and <code>Epic sadface: You can only access &#39;&lt;path&gt;&#39; when you are logged in.</code>, and no page title</td>
+</tr>
+<tr>
+<td>TC-04 Back after logout</td>
+<td>Error about <code>/inventory.html</code> is shown, and there is no product list</td>
+</tr>
+<tr>
+<td>TC-06 Sorting (4 tests)</td>
+<td>List order equals a correctly sorted copy. First items are Backpack (A→Z), Red T-Shirt (Z→A), Onesie $7.99 (low→high), and Fleece Jacket $49.99 (high→low)</td>
+</tr>
+<tr>
+<td>TC-07 List vs detail price</td>
+<td>The detail page shows the same product and the same price ($29.99) as the list</td>
+</tr>
+<tr>
+<td>TC-09 Mobile layout</td>
+<td>At a 375 × 667 viewport, all 6 cards render and the page width ≤ the viewport width (no horizontal scroll)</td>
+</tr>
+<tr>
+<td>TC-12 Three-item totals</td>
+<td>Item total 9597 cents, tax 768 cents, total 10365 cents</td>
+</tr>
+</tbody></table>
+<h3>5.4 Known-defect suite (<code>tests/defects/known-defects.spec.js</code>)</h3>
+<p>Each test asserts what <strong>should</strong> happen. It fails today with a message that describes the defect. Where one case has several expectations, the test uses <code>expect.soft</code>, so the report lists every broken part instead of stopping at the first.</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Asserts (correct behaviour)</th>
+<th>Fails today with</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>[D1] TC-18</code> empty-cart order</td>
+<td>Checkout cannot start with an empty cart</td>
+<td>URL is <code>checkout-step-one.html</code></td>
+</tr>
+<tr>
+<td><code>[D2] TC-16</code> spaces-only details</td>
+<td><code>Error: First Name is required</code> is shown</td>
+<td>No error element; the overview opens</td>
+</tr>
+<tr>
+<td><code>[D2] TC-17</code> skip step by URL</td>
+<td>Opening step two redirects to step one</td>
+<td>URL stays on <code>checkout-step-two.html</code></td>
+</tr>
+<tr>
+<td><code>[D3] TC-05</code> cart carried to another user</td>
+<td>Second user sees no badge and an empty cart</td>
+<td>Badge visible; cart has 1 item</td>
+</tr>
+<tr>
+<td><code>[D4] TC-10</code> Reset App State</td>
+<td>Badge hidden <strong>and</strong> 0 &quot;Remove&quot; buttons</td>
+<td>Badge passes; 2 &quot;Remove&quot; buttons remain</td>
+</tr>
+<tr>
+<td><code>[D5] TC-08</code> invalid product id</td>
+<td>No Add to cart button, badge = cart rows, and the overview renders</td>
+<td>All three soft checks fail: button present, badge 1 vs 0 rows, blank overview</td>
+</tr>
+</tbody></table>
+<p>When a defect is fixed, its test turns green. Move it into <code>tests/regression/</code> so it then guards against the bug coming back.</p>
+<h3>5.5 Proof the tests can fail</h3>
+<p>To confirm the assertions are meaningful, <code>TAX_RATE</code> was temporarily changed to <code>0.09</code>. The E2E test failed with:</p>
+<pre><code>Error: tax = 9% of item total
+Expected: 720
+Received: 640
+</code></pre>
+<p>You can repeat this check with any expected value to see the suite turn red.</p>
+<hr>
+<h2>6. Configuration (<code>playwright.config.js</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Local</th>
+<th>CI (<code>CI=true</code>)</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>baseURL</code></td>
+<td><code>https://www.saucedemo.com</code> (override with <code>BASE_URL</code>)</td>
+<td>same</td>
+<td>Tests use relative paths like <code>/cart.html</code></td>
+</tr>
+<tr>
+<td><code>testIdAttribute</code></td>
+<td><code>data-test</code></td>
+<td>same</td>
+<td>Lets <code>getByTestId</code> use the site&#39;s built-in test hooks</td>
+</tr>
+<tr>
+<td><code>headless</code></td>
+<td><code>true</code></td>
+<td><code>true</code></td>
+<td>Runs without opening a window</td>
+</tr>
+<tr>
+<td><code>testMatch</code> (via <code>SUITE</code>)</td>
+<td><code>core</code> unless set</td>
+<td>same</td>
+<td><code>core</code> = <code>tests/*.spec.js</code>; <code>regression</code> = <code>tests/regression/</code>; <code>defects</code> = <code>tests/defects/</code>; <code>all</code> = all three</td>
+</tr>
+<tr>
+<td><code>retries</code></td>
+<td><code>0</code></td>
+<td><code>1</code> (<code>0</code> for the defect suite)</td>
+<td>Failures stay visible locally; a test that passes on retry is labelled <em>flaky</em> in CI, not hidden</td>
+</tr>
+<tr>
+<td><code>workers</code></td>
+<td>auto (CPU count)</td>
+<td><code>2</code></td>
+<td>Parallel execution</td>
+</tr>
+<tr>
+<td><code>fullyParallel</code></td>
+<td><code>true</code></td>
+<td><code>true</code></td>
+<td>Every test runs independently</td>
+</tr>
+<tr>
+<td><code>timeout</code> / <code>expect.timeout</code></td>
+<td>30 s / 5 s</td>
+<td>same</td>
+<td>Bounded waits; no fixed sleeps anywhere</td>
+</tr>
+<tr>
+<td><code>trace</code>, <code>video</code></td>
+<td>kept only on failure</td>
+<td>same</td>
+<td>Debug artefacts without bloating passing runs</td>
+</tr>
+<tr>
+<td><code>screenshot</code></td>
+<td>only on failure</td>
+<td>same</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Projects</td>
+<td><code>chrome</code> (Google Chrome, <code>channel: &#39;chrome&#39;</code>); <code>firefox</code> added when <code>ALL_BROWSERS=1</code></td>
+<td>same (Firefox via workflow checkbox)</td>
+<td>Tests run on the branded browser real users have; cross-browser is opt-in</td>
+</tr>
+<tr>
+<td>Reporters</td>
+<td><code>list</code> (console) + <code>html</code></td>
+<td>same</td>
+<td>Readable logs and a browsable report. Each suite writes its own report (<code>playwright-report/</code>, <code>playwright-report-regression/</code>, <code>playwright-report-defects/</code>), so one suite never overwrites another</td>
+</tr>
+</tbody></table>
+<p><strong>Test isolation:</strong> Playwright gives every test a fresh browser context, so cookies and <code>localStorage</code> (where SauceDemo keeps the cart) are always clean. No test depends on another or on run order.</p>
+<h3>Environment variables</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BASE_URL</code></td>
+<td><code>https://www.saucedemo.com</code></td>
+<td>Point the suite at another environment</td>
+</tr>
+<tr>
+<td><code>SAUCE_PASSWORD</code></td>
+<td><code>secret_sauce</code></td>
+<td>Avoid hard-coding a password in CI</td>
+</tr>
+<tr>
+<td><code>ALL_BROWSERS</code></td>
+<td>unset</td>
+<td>Set to <code>1</code> to run on Firefox as well as Chrome</td>
+</tr>
+<tr>
+<td><code>SUITE</code></td>
+<td><code>core</code></td>
+<td><code>core</code>, <code>regression</code>, <code>defects</code> or <code>all</code>. The npm scripts set it for you</td>
+</tr>
+<tr>
+<td><code>CI</code></td>
+<td>unset</td>
+<td>Set automatically by GitHub Actions; switches to CI settings</td>
+</tr>
+</tbody></table>
+<p>Example: <code>BASE_URL=https://staging.example.com npx playwright test</code></p>
+<hr>
+<h2>7. Running the automation: command reference</h2>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Core suite (Google Chrome, headless)</td>
+<td><code>npm test</code></td>
+</tr>
+<tr>
+<td>Regression suite</td>
+<td><code>npm run test:regression</code></td>
+</tr>
+<tr>
+<td>Known-defect suite (expected to fail)</td>
+<td><code>npm run test:defects</code></td>
+</tr>
+<tr>
+<td>All three suites in one run</td>
+<td><code>npm run test:everything</code> (exits red because of the defect tests)</td>
+</tr>
+<tr>
+<td>One defect only</td>
+<td><code>npm run test:defects -- -g D3</code></td>
+</tr>
+<tr>
+<td>Core suite on Chrome + Firefox</td>
+<td><code>npm run test:all-browsers</code></td>
+</tr>
+<tr>
+<td>Regression on Chrome + Firefox</td>
+<td><code>ALL_BROWSERS=1 npm run test:regression</code></td>
+</tr>
+<tr>
+<td>Firefox only</td>
+<td><code>ALL_BROWSERS=1 npx playwright test --project firefox</code></td>
+</tr>
+<tr>
+<td>Only the purchase journey</td>
+<td><code>npm run test:smoke</code></td>
+</tr>
+<tr>
+<td>One file</td>
+<td><code>npx playwright test tests/negative.spec.js</code></td>
+</tr>
+<tr>
+<td>One test by name</td>
+<td><code>npx playwright test -g &quot;Postal Code&quot;</code></td>
+</tr>
+<tr>
+<td>Watch the browser</td>
+<td><code>npm run test:headed</code></td>
+</tr>
+<tr>
+<td>Step through interactively (Inspector)</td>
+<td><code>npx playwright test --debug -g @smoke</code></td>
+</tr>
+<tr>
+<td>Visual test runner (UI mode)</td>
+<td><code>npx playwright test --ui</code></td>
+</tr>
+<tr>
+<td>Check stability (repeat 10×)</td>
+<td><code>npx playwright test --repeat-each=10</code></td>
+</tr>
+<tr>
+<td>Syntax-check all JS files</td>
+<td><code>npm run lint</code></td>
+</tr>
+<tr>
+<td>Open the last HTML report</td>
+<td><code>npm run report</code> (core), <code>npm run report:regression</code>, <code>npm run report:defects</code></td>
+</tr>
+<tr>
+<td>Open a failure trace</td>
+<td><code>npx playwright show-trace test-results/&lt;test-folder&gt;/trace.zip</code></td>
+</tr>
+<tr>
+<td>Run exploratory probes</td>
+<td><code>npm run explore</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. Reading results and debugging failures</h2>
+<ol>
+<li><strong>Console:</strong> the <code>list</code> reporter prints ✓/✘ per test, and failures show the assertion message (e.g. <code>item total = sum of line prices</code>), expected vs received, and the source line.</li>
+<li><strong>HTML report</strong> (<code>npm run report</code>): filter by browser or status, expand <code>test.step</code> sections, and view attached screenshots, videos, and traces for failed tests.</li>
+<li><strong>Trace viewer:</strong> a time-travel recording of a failed test, with DOM snapshots, network, and console for every action. It&#39;s the fastest way to see <em>why</em> a locator didn&#39;t match.</li>
+<li><strong>Common causes:</strong></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Chromium distribution &#39;chrome&#39; is not found</code></td>
+<td>Google Chrome not installed in its standard location</td>
+<td>Install Chrome, or run <code>npx playwright install chrome</code></td>
+</tr>
+<tr>
+<td>Every test fails at <code>browserContext.newPage</code> with &quot;Video rendering requires ffmpeg binary&quot;</td>
+<td>Playwright&#39;s ffmpeg is missing (or its browser cache was cleared). It is needed even with branded Chrome because <code>video: &#39;retain-on-failure&#39;</code> records every test</td>
+<td><code>npx playwright install ffmpeg</code></td>
+</tr>
+<tr>
+<td><code>browserType.launch: Executable doesn&#39;t exist</code> (Firefox)</td>
+<td>Firefox not installed for a cross-browser run</td>
+<td><code>npx playwright install firefox</code></td>
+</tr>
+<tr>
+<td>Missing shared libraries on Linux</td>
+<td>System dependencies missing</td>
+<td><code>npx playwright install-deps</code> (needs sudo)</td>
+</tr>
+<tr>
+<td>All tests time out on <code>goto</code></td>
+<td>No internet access, or saucedemo.com is down</td>
+<td>Check the site in a browser and any proxy settings</td>
+</tr>
+<tr>
+<td>Text assertion fails after a site update</td>
+<td>SauceDemo changed its copy</td>
+<td>Update the expected text in the spec or page object</td>
+</tr>
+<tr>
+<td>Tax assertion fails</td>
+<td>Tax rule changed</td>
+<td>Confirm the new rule, then update <code>TAX_RATE</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>9. Extending the suite</h2>
+<p><strong>Add a new page:</strong> create <code>pages/NewPage.js</code> following the existing pattern (locators in the constructor, an <code>expectLoaded()</code> method, action methods), then register it in <code>tests/fixtures.js</code>:</p>
+<pre><code class="language-js">// pages/NewPage.js
+// @ts-check
+const { expect } = require(&#39;@playwright/test&#39;);
+
+class NewPage {
+  /** @param {import(&#39;@playwright/test&#39;).Page} page */
+  constructor(page) {
+    this.page = page;
+    this.title = page.getByTestId(&#39;title&#39;);
+  }
+
+  async expectLoaded() {
+    await expect(this.title).toHaveText(&#39;New Page&#39;);
+  }
+}
+
+module.exports = { NewPage };
+</code></pre>
+<pre><code class="language-js">// tests/fixtures.js – add inside base.test.extend({...}) and to the Pages typedef
+newPage: async ({ page }, use) =&gt; use(new NewPage(page)),
+</code></pre>
+<p><strong>Rules to keep the suite healthy:</strong></p>
+<ul>
+<li>Use <code>getByTestId</code> or <code>getByRole</code>; never CSS classes or <code>nth-child</code>.</li>
+<li>Never use <code>page.waitForTimeout()</code>; use <code>expect(...)</code> web-first assertions.</li>
+<li>Call <code>expectLoaded()</code> before reading data from a page.</li>
+<li>Compare money in cents with <code>toCents</code>.</li>
+<li>Start new files with <code>// @ts-check</code> and add JSDoc types to constructor and method parameters.</li>
+<li>Assert <em>business outcomes</em> (totals, cart contents), not just visibility.</li>
+<li>Before merging a new test, make it fail once on purpose to prove it can.</li>
+</ul>
+<p><strong>Where to put a new test:</strong></p>
+<ul>
+<li>If it should always pass, put it in <code>tests/regression/</code> (or the core folder if it is part of the main E2E flow).</li>
+<li>If it covers a newly found bug, put it in <code>tests/defects/known-defects.spec.js</code>. Assert the <strong>correct</strong> behaviour, so the test fails until the bug is fixed. Do <strong>not</strong> use <code>test.fail()</code>, because that would hide the bug behind a green tick. Start the title with the defect and test case IDs, e.g. <code>[D6] TC-19 …</code>.</li>
+<li>When a defect is fixed and its test turns green, move the test into <code>tests/regression/</code>.</li>
+</ul>
+<p><strong>Add a new regression test</strong> (in <code>tests/regression/</code>, so the imports go up one level):</p>
+<pre><code class="language-js">// @ts-check
+const { test, expect } = require(&#39;../fixtures&#39;);
+const { products } = require(&#39;../data/testData&#39;);
+
+test(&#39;TC-19 removing an item updates the badge&#39;, async ({ loggedIn: inventory }) =&gt; {
+  await inventory.addToCart(products.backpack);
+  await expect(inventory.header.cartBadge).toHaveText(&#39;1&#39;);
+  await inventory.item(products.backpack).getByRole(&#39;button&#39;, { name: &#39;Remove&#39; }).click();
+  await expect(inventory.header.cartBadge).toBeHidden();
+});
+</code></pre>
+<hr>
+<h2>10. Publishing to your personal GitHub</h2>
+<p>The project is a <strong>standalone git repository</strong> with no remote and no connection to any work repository. Its local git identity is intentionally blank, so nothing can be committed under a work email by accident.</p>
+<pre><code class="language-bash">cd ~/personal/saucedemo-qa-assessment
+
+# 1. Set your PERSONAL identity for this repo only
+git config user.name  &quot;Your Name&quot;
+git config user.email &quot;you@personal-email.com&quot;
+
+# 2. First commit
+git add .
+git commit -m &quot;SauceDemo QA assessment: exploration, defects, Playwright suite&quot;
+
+# 3. Create an EMPTY public repo on github.com (personal account), then:
+git remote add origin https://github.com/&lt;your-username&gt;/saucedemo-qa-assessment.git
+git push -u origin main
+</code></pre>
+<p>After pushing:</p>
+<ul>
+<li>Replace <code>&lt;add your public GitHub URL here&gt;</code> in section 4 of <code>SUBMISSION.md</code>, then commit and push again.</li>
+<li>Open the <strong>Actions</strong> tab to confirm the CI run is green.</li>
+</ul>
+<p>Check before pushing: <code>git remote -v</code> should show only your personal repo, and <code>git log --format=&#39;%an &lt;%ae&gt;&#39;</code> should show only your personal email.</p>
+<hr>
+<h2>11. Assessment task mapping</h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Requirement</th>
+<th>Where it is answered</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>Risk-based exploration, AI prompts, validated/rejected ideas</td>
+<td><code>SUBMISSION.md</code> §2, <code>explore/</code></td>
+</tr>
+<tr>
+<td>B</td>
+<td>Up to 5 defects with steps, expected/actual, severity, impact, evidence</td>
+<td><code>SUBMISSION.md</code> §3, <code>evidence/</code></td>
+</tr>
+<tr>
+<td>C</td>
+<td>Runnable E2E test, setup instructions, AI contribution, manual fixes, limitations</td>
+<td><code>tests/</code>, <code>pages/</code>, <code>README.md</code>, <code>SUBMISSION.md</code> §4, this guide</td>
+</tr>
+<tr>
+<td>D</td>
+<td>1-page AI-driven QA strategy</td>
+<td><code>SUBMISSION.md</code> §5</td>
+</tr>
+<tr>
+<td>—</td>
+<td>Tools list</td>
+<td><code>SUBMISSION.md</code> §6</td>
+</tr>
+</tbody></table>
+</body></html>

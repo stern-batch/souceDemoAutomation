@@ -1,0 +1,18 @@
+{
+  "name": "saucedemo-qa-assessment",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SQA practical assessment: exploratory testing, defect report and Playwright E2E automation for saucedemo.com",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:all-browsers": "ALL_BROWSERS=1 playwright test",
+    "test:smoke": "playwright test -g @smoke",
+    "lint": "node --check playwright.config.js && for f in pages/*.js tests/*.js tests/data/*.js utils/*.js explore/*.js; do node --check \"$f\" || exit 1; done",
+    "report": "playwright show-report",
+    "explore": "playwright test --config explore/explore.config.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0"
+  }
+}

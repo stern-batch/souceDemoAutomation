@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>SauceDemo – Test Cases</title><style>
+  @page { size: A4; margin: 16mm 14mm; }
+  body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5;
+         color: #1f2328; max-width: 960px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 22pt; border-bottom: 3px solid #2da44e; padding-bottom: 6px; margin-top: 0; }
+  h2 { font-size: 15pt; border-bottom: 1px solid #d0d7de; padding-bottom: 4px; margin-top: 28px; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; margin-top: 20px; page-break-after: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 16px; font-size: 9.5pt; page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  th, td { border: 1px solid #d0d7de; padding: 5px 8px; text-align: left; vertical-align: top; }
+  th { background: #f0f3f6; }
+  td:first-child { white-space: nowrap; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  code { font-family: "JetBrains Mono", Consolas, monospace; font-size: 9pt; background: #f0f3f6; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 10px 12px; overflow-x: auto;
+        white-space: pre-wrap; word-break: break-word; page-break-inside: avoid; }
+  pre code { background: none; padding: 0; font-size: 8.8pt; }
+  blockquote { border-left: 4px solid #2da44e; margin: 12px 0; padding: 6px 12px; background: #f3fbf5; color: #24292f; }
+  hr { border: none; border-top: 1px solid #d0d7de; margin: 22px 0; }
+  a { color: #0969da; text-decoration: none; }
+  img { max-width: 100%; border: 1px solid #d0d7de; }
+  td img { width: 48%; height: auto; margin: 2px 1% 2px 0; vertical-align: top; }
+</style></head>
+<body><h1>SauceDemo – Test Cases</h1>
+<ul>
+<li><strong>Application:</strong> <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li><strong>Environment:</strong> Google Chrome 146 (desktop), <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a>, executed 6–7 Oct 2026</li>
+<li><strong>General precondition for every case:</strong> use a fresh browser window (or Incognito), so no cart or login from a previous run is left over.</li>
+<li><strong>Summary:</strong> 18 test cases · <strong>12 Pass</strong> · <strong>6 Fail</strong> · all 18 automated as <strong>29 automated tests</strong></li>
+</ul>
+<p>Every test case is automated. The steps below are written so they can also be followed by hand. The tests are split into three suites, so the known-defect tests can never break the main run:</p>
+<table>
+<thead>
+<tr>
+<th>Suite</th>
+<th>Purpose</th>
+<th>Test cases</th>
+<th>Automated tests</th>
+<th>Command</th>
+<th>Result today</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Core</strong></td>
+<td>Original end-to-end and negative tests</td>
+<td>5: TC-01, TC-11, TC-13, TC-14, TC-15</td>
+<td>5</td>
+<td><code>npm test</code></td>
+<td>✅ 5 pass</td>
+</tr>
+<tr>
+<td><strong>Regression</strong></td>
+<td>Website works correctly; guards against future breakage</td>
+<td>7: TC-02, TC-03, TC-04, TC-06, TC-07, TC-09, TC-12</td>
+<td>18</td>
+<td><code>npm run test:regression</code></td>
+<td>✅ 18 pass</td>
+</tr>
+<tr>
+<td><strong>Known defect</strong></td>
+<td>Asserts the <em>correct</em> behaviour, so it fails while the bug exists</td>
+<td>6: TC-05, TC-08, TC-10, TC-16, TC-17, TC-18</td>
+<td>6</td>
+<td><code>npm run test:defects</code></td>
+<td>❌ 6 fail</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>18</strong></td>
+<td><strong>29</strong></td>
+<td><code>npm run test:everything</code></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>Why 18 test cases make 29 automated tests:</strong> TC-02 checks 5 variations, TC-03 checks 5 variations, TC-06 checks 4 variations. Each variation is a separate automated test, so a failure points to the exact variation that broke. Every other case has exactly one test. Every test name starts with its test case ID.</p>
+<p>When a developer fixes a defect, its known-defect test turns green. It can then move into the regression suite.</p>
+<h2>Index</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Module</th>
+<th>Title</th>
+<th>Priority</th>
+<th>Suite</th>
+<th>Tests</th>
+<th>Status</th>
+<th>Defect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="#tc-01">TC-01</a></td>
+<td>Login</td>
+<td>Locked-out user cannot log in</td>
+<td>P1</td>
+<td>Core</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-02">TC-02</a></td>
+<td>Login</td>
+<td>Login validation messages for missing or wrong credentials</td>
+<td>P2</td>
+<td>Regression</td>
+<td>5</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-03">TC-03</a></td>
+<td>Session &amp; navigation</td>
+<td>Protected pages cannot be opened without logging in</td>
+<td>P1</td>
+<td>Regression</td>
+<td>5</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-04">TC-04</a></td>
+<td>Session &amp; navigation</td>
+<td>Browser Back after logout does not show the Products page</td>
+<td>P2</td>
+<td>Regression</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-05">TC-05</a></td>
+<td>Session &amp; navigation</td>
+<td>Cart is not carried over to a different user after logout</td>
+<td>P2</td>
+<td>Known defect</td>
+<td>1</td>
+<td>❌ Fail</td>
+<td>D3</td>
+</tr>
+<tr>
+<td><a href="#tc-06">TC-06</a></td>
+<td>Catalogue</td>
+<td>Products can be sorted by name and price</td>
+<td>P2</td>
+<td>Regression</td>
+<td>4</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-07">TC-07</a></td>
+<td>Catalogue</td>
+<td>Product price is the same on the list and the detail page</td>
+<td>P2</td>
+<td>Regression</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-08">TC-08</a></td>
+<td>Catalogue</td>
+<td>A non-existent product cannot be added to the cart</td>
+<td>P3</td>
+<td>Known defect</td>
+<td>1</td>
+<td>❌ Fail</td>
+<td>D5</td>
+</tr>
+<tr>
+<td><a href="#tc-09">TC-09</a></td>
+<td>Catalogue</td>
+<td>Products page fits a mobile screen without horizontal scrolling</td>
+<td>P3</td>
+<td>Regression</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-10">TC-10</a></td>
+<td>Cart</td>
+<td>Reset App State clears the cart and resets all product buttons</td>
+<td>P3</td>
+<td>Known defect</td>
+<td>1</td>
+<td>❌ Fail</td>
+<td>D4</td>
+</tr>
+<tr>
+<td><a href="#tc-11">TC-11</a></td>
+<td>Checkout</td>
+<td>Successful purchase of two products with correct totals</td>
+<td>P1</td>
+<td>Core</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-12">TC-12</a></td>
+<td>Checkout</td>
+<td>Totals are correct for three products</td>
+<td>P2</td>
+<td>Regression</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-13">TC-13</a></td>
+<td>Checkout</td>
+<td>Checkout is blocked when First Name is missing</td>
+<td>P2</td>
+<td>Core</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-14">TC-14</a></td>
+<td>Checkout</td>
+<td>Checkout is blocked when Last Name is missing</td>
+<td>P2</td>
+<td>Core</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-15">TC-15</a></td>
+<td>Checkout</td>
+<td>Checkout is blocked when Postal Code is missing</td>
+<td>P2</td>
+<td>Core</td>
+<td>1</td>
+<td>✅ Pass</td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="#tc-16">TC-16</a></td>
+<td>Checkout</td>
+<td>Checkout rejects customer details that contain only spaces</td>
+<td>P2</td>
+<td>Known defect</td>
+<td>1</td>
+<td>❌ Fail</td>
+<td>D2</td>
+</tr>
+<tr>
+<td><a href="#tc-17">TC-17</a></td>
+<td>Checkout</td>
+<td>Customer information step cannot be skipped by URL</td>
+<td>P2</td>
+<td>Known defect</td>
+<td>1</td>
+<td>❌ Fail</td>
+<td>D2</td>
+</tr>
+<tr>
+<td><a href="#tc-18">TC-18</a></td>
+<td>Checkout</td>
+<td>An order cannot be placed with an empty cart</td>
+<td>P1</td>
+<td>Known defect</td>
+<td>1</td>
+<td>❌ Fail</td>
+<td>D1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><strong>Total</strong></td>
+<td></td>
+<td></td>
+<td><strong>29</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Login</h2>
+<p><a id="tc-01"></a></p>
+<h3>TC-01 – Locked-out user cannot log in</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Core suite · run with <code>npm test</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/negative.spec.js › locked-out user is blocked with a clear message and stays on login</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td>Username: <code>locked_out_user</code> · Password: <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>locked_out_user</code></li>
+<li>Enter Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Error message shown: <em>Epic sadface: Sorry, this user has been locked out.</em></li>
+<li>User stays on the login page</li>
+<li>Products page is not displayed</li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-02"></a></p>
+<h3>TC-02 – Login validation messages for missing or wrong credentials</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Regression suite · run with <code>npm run test:regression</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/regression/login.spec.js › TC-02 … (4 credential cases + password masked)</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td><strong>5</strong>, one per variation: both fields empty; password empty; wrong password; username in different case; password field is masked</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td>See steps</td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Leave both fields empty and click <strong>Login</strong></li>
+<li>Enter Username <code>standard_user</code>, leave Password empty, click <strong>Login</strong></li>
+<li>Enter Username <code>standard_user</code>, Password <code>wrong_password</code>, click <strong>Login</strong></li>
+<li>Enter Username <code>Standard_User</code> (different case), Password <code>secret_sauce</code>, click <strong>Login</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Step 2: <em>Epic sadface: Username is required</em></li>
+<li>Step 3: <em>Epic sadface: Password is required</em></li>
+<li>Steps 4 and 5: <em>Epic sadface: Username and password do not match any user in this service</em></li>
+<li>User is never logged in; password field is masked</li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<hr>
+<h2>Session &amp; navigation</h2>
+<p><a id="tc-03"></a></p>
+<h3>TC-03 – Protected pages cannot be opened without logging in</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Security</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Regression suite · run with <code>npm run test:regression</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/regression/session.spec.js › TC-03 &lt;page&gt; shows the login form instead of the page (5 pages)</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td><strong>5</strong>, one per variation: /inventory.html; /cart.html; /checkout-step-one.html; /checkout-step-two.html; /inventory-item.html</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in (fresh or incognito window)</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td>URLs listed in steps</td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/inventory.html">https://www.saucedemo.com/inventory.html</a></li>
+<li>Open <a href="https://www.saucedemo.com/cart.html">https://www.saucedemo.com/cart.html</a></li>
+<li>Open <a href="https://www.saucedemo.com/checkout-step-one.html">https://www.saucedemo.com/checkout-step-one.html</a></li>
+<li>Open <a href="https://www.saucedemo.com/checkout-step-two.html">https://www.saucedemo.com/checkout-step-two.html</a></li>
+<li>Open <a href="https://www.saucedemo.com/inventory-item.html?id=4">https://www.saucedemo.com/inventory-item.html?id=4</a></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>For every URL the login form is shown instead of the page</li>
+<li>Error shown: <em>Epic sadface: You can only access &#39;<page>&#39; when you are logged in.</em></li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-04"></a></p>
+<h3>TC-04 – Browser Back after logout does not show the Products page</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Security</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Regression suite · run with <code>npm run test:regression</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/regression/session.spec.js › TC-04 browser Back after logout does not show the Products page</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Open the menu (☰) and click <strong>Logout</strong></li>
+<li>Click the browser <strong>Back</strong> button</li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Login form is shown with <em>Epic sadface: You can only access &#39;/inventory.html&#39; when you are logged in.</em></li>
+<li>No product data is visible</li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-05"></a></p>
+<h3>TC-05 – Cart is not carried over to a different user after logout</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Functional / Privacy</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Known defect suite · run with <code>npm run test:defects</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/defects/known-defects.spec.js › [D3] TC-05 cart is not carried over to a different user after logout</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Fresh browser window (no previous SauceDemo data)</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td>User A: <code>standard_user</code> · User B: <code>visual_user</code> · Password: <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Click <strong>Add to cart</strong> on <em>Sauce Labs Fleece Jacket</em></li>
+<li>Open the menu (☰) and click <strong>Logout</strong></li>
+<li>Log in as <code>visual_user</code> / <code>secret_sauce</code></li>
+<li>Open the cart</li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>User B&#39;s cart badge is not shown</li>
+<li>User B&#39;s cart is empty</li>
+</ul>
+<p><strong>Actual result:</strong> Badge shows <strong>1</strong> and User B&#39;s cart contains <em>Sauce Labs Fleece Jacket</em> (User A&#39;s item)<br><strong>Status:</strong> ❌ Fail · <strong>Defect:</strong> D3 (see <code>SUBMISSION.md</code> §3). The automated test fails until this defect is fixed.</p>
+<p><strong>Evidence:</strong> <code>evidence/D3-cart-carried-to-different-user.png</code></p>
+<hr>
+<h2>Catalogue</h2>
+<p><a id="tc-06"></a></p>
+<h3>TC-06 – Products can be sorted by name and price</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Functional</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Regression suite · run with <code>npm run test:regression</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/regression/catalogue.spec.js › TC-06 Name (A to Z) / Name (Z to A) / Price (low to high) / Price (high to low)</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td><strong>4</strong>, one per variation: Name (A to Z); Name (Z to A); Price (low to high); Price (high to low)</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Select <strong>Name (A to Z)</strong> in the sort dropdown</li>
+<li>Select <strong>Name (Z to A)</strong></li>
+<li>Select <strong>Price (low to high)</strong></li>
+<li>Select <strong>Price (high to low)</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>A to Z: list is alphabetical, first item <em>Sauce Labs Backpack</em></li>
+<li>Z to A: reverse alphabetical, first item <em>Test.allTheThings() T-Shirt (Red)</em></li>
+<li>Low to high: prices ascending, first item <em>Sauce Labs Onesie</em> $7.99</li>
+<li>High to low: prices descending, first item <em>Sauce Labs Fleece Jacket</em> $49.99</li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-07"></a></p>
+<h3>TC-07 – Product price is the same on the list and the detail page</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Functional</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Regression suite · run with <code>npm run test:regression</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/regression/catalogue.spec.js › TC-07 product price is the same on the list and the detail page</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Note the price of <em>Sauce Labs Backpack</em> on the Products page</li>
+<li>Click the product name to open its detail page</li>
+<li>Note the price on the detail page</li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Both prices are <strong>$29.99</strong></li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-08"></a></p>
+<h3>TC-08 – A non-existent product cannot be added to the cart</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative / Robustness</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P3</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Known defect suite · run with <code>npm run test:defects</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/defects/known-defects.spec.js › [D5] TC-08 a non-existent product cannot be added to the cart</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code> · URL id <code>999</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>In the address bar open <a href="https://www.saucedemo.com/inventory-item.html?id=999">https://www.saucedemo.com/inventory-item.html?id=999</a></li>
+<li>Click <strong>Add to cart</strong></li>
+<li>Open the cart</li>
+<li>Click <strong>Checkout</strong>, enter First Name <code>A</code>, Last Name <code>B</code>, Postal Code <code>1</code>, click <strong>Continue</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Invalid product cannot be added (no button or an error)</li>
+<li>Cart badge and cart contents always match</li>
+<li>Checkout overview loads normally</li>
+</ul>
+<p><strong>Actual result:</strong> Page shows <em>ITEM NOT FOUND</em> priced <em>$√-1</em> with an <strong>Add to cart</strong> button. After adding, badge shows <strong>1</strong> but the cart lists no items. Checkout overview renders a <strong>blank white page</strong>.<br><strong>Status:</strong> ❌ Fail · <strong>Defect:</strong> D5 (see <code>SUBMISSION.md</code> §3). The automated test fails until this defect is fixed.</p>
+<p><strong>Evidence:</strong> <code>evidence/D5a-item-not-found-add-to-cart.png, D5b-cart-after-invalid-item.png, D5c-checkout-overview-crash.png</code></p>
+<p><a id="tc-09"></a></p>
+<h3>TC-09 – Products page fits a mobile screen without horizontal scrolling</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>UI / Responsive</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P3</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Regression suite · run with <code>npm run test:regression</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/regression/catalogue.spec.js › TC-09 Products page fits a 375px screen without horizontal scrolling</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Chrome DevTools device toolbar set to 375 × 667 (e.g. iPhone SE)</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Look at the Products page and try to scroll horizontally</li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>No horizontal scrollbar; all product cards fit the screen width</li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<hr>
+<h2>Cart</h2>
+<p><a id="tc-10"></a></p>
+<h3>TC-10 – Reset App State clears the cart and resets all product buttons</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Functional</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P3</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Known defect suite · run with <code>npm run test:defects</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/defects/known-defects.spec.js › [D4] TC-10 Reset App State clears the cart and resets all product buttons</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Click <strong>Add to cart</strong> on <em>Sauce Labs Backpack</em> and <em>Sauce Labs Bike Light</em></li>
+<li>Open the menu (☰) and click <strong>Reset App State</strong></li>
+<li>Close the menu and look at the two products</li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Cart badge disappears</li>
+<li>Both products show <strong>Add to cart</strong> again</li>
+</ul>
+<p><strong>Actual result:</strong> Badge disappears but both products still show <strong>Remove</strong> until the page is reloaded<br><strong>Status:</strong> ❌ Fail · <strong>Defect:</strong> D4 (see <code>SUBMISSION.md</code> §3). The automated test fails until this defect is fixed.</p>
+<p><strong>Evidence:</strong> <code>evidence/D4-reset-state-stale-remove-buttons.png</code></p>
+<hr>
+<h2>Checkout</h2>
+<p><a id="tc-11"></a></p>
+<h3>TC-11 – Successful purchase of two products with correct totals</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Functional (E2E)</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Core suite · run with <code>npm test</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/checkout.e2e.spec.js › user can buy two products and totals are calculated correctly @smoke</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code> · Products: Sauce Labs Backpack ($29.99), Sauce Labs Fleece Jacket ($49.99) · Customer: Ada / Lovelace / 560001</td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Click <strong>Add to cart</strong> on <em>Sauce Labs Backpack</em></li>
+<li>Click <strong>Add to cart</strong> on <em>Sauce Labs Fleece Jacket</em></li>
+<li>Click the cart icon</li>
+<li>Click <strong>Checkout</strong></li>
+<li>Enter First Name <code>Ada</code>, Last Name <code>Lovelace</code>, Postal Code <code>560001</code> and click <strong>Continue</strong></li>
+<li>Review the Checkout: Overview page</li>
+<li>Click <strong>Finish</strong></li>
+<li>Click <strong>Back Home</strong>, then open the cart</li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>After step 5: both buttons show <strong>Remove</strong>; cart badge shows <strong>2</strong></li>
+<li>Step 6: cart lists exactly the 2 products, quantity 1 each, at $29.99 and $49.99</li>
+<li>Step 9: same 2 items; Item total <strong>$79.98</strong>; Tax <strong>$6.40</strong> (8 %); Total <strong>$86.38</strong></li>
+<li>Step 10: <em>Checkout: Complete!</em> page with <em>Thank you for your order!</em>; cart badge gone</li>
+<li>Step 11: all products show <strong>Add to cart</strong>; cart is empty</li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-12"></a></p>
+<h3>TC-12 – Totals are correct for three products</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Functional</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Regression suite · run with <code>npm run test:regression</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/regression/checkout.spec.js › TC-12 totals are correct for three products</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code> · Backpack $29.99, Bolt T-Shirt $15.99, Fleece Jacket $49.99 · Customer: Ada / Lovelace / 560001</td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Add <em>Sauce Labs Backpack</em>, <em>Sauce Labs Bolt T-Shirt</em> and <em>Sauce Labs Fleece Jacket</em> to the cart</li>
+<li>Open the cart and click <strong>Checkout</strong></li>
+<li>Enter First Name <code>Ada</code>, Last Name <code>Lovelace</code>, Postal Code <code>560001</code> and click <strong>Continue</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Item total <strong>$95.97</strong></li>
+<li>Tax <strong>$7.68</strong> (8 %)</li>
+<li>Total <strong>$103.65</strong></li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-13"></a></p>
+<h3>TC-13 – Checkout is blocked when First Name is missing</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Core suite · run with <code>npm test</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/negative.spec.js › checkout is blocked when First Name is missing</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code> · Customer: Ada / Lovelace / 560001</td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Click <strong>Add to cart</strong> on <em>Sauce Labs Backpack</em></li>
+<li>Open the cart and click <strong>Checkout</strong></li>
+<li>Fill in the other two fields, leave <strong>First Name</strong> empty</li>
+<li>Click <strong>Continue</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Error shown: <em>Error: First Name is required</em></li>
+<li>User stays on <em>Checkout: Your Information</em></li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-14"></a></p>
+<h3>TC-14 – Checkout is blocked when Last Name is missing</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Core suite · run with <code>npm test</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/negative.spec.js › checkout is blocked when Last Name is missing</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code> · Customer: Ada / Lovelace / 560001</td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Click <strong>Add to cart</strong> on <em>Sauce Labs Backpack</em></li>
+<li>Open the cart and click <strong>Checkout</strong></li>
+<li>Fill in the other two fields, leave <strong>Last Name</strong> empty</li>
+<li>Click <strong>Continue</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Error shown: <em>Error: Last Name is required</em></li>
+<li>User stays on <em>Checkout: Your Information</em></li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-15"></a></p>
+<h3>TC-15 – Checkout is blocked when Postal Code is missing</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Core suite · run with <code>npm test</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/negative.spec.js › checkout is blocked when Postal Code is missing</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code> · Customer: Ada / Lovelace / 560001</td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Click <strong>Add to cart</strong> on <em>Sauce Labs Backpack</em></li>
+<li>Open the cart and click <strong>Checkout</strong></li>
+<li>Fill in the other two fields, leave <strong>Postal Code</strong> empty</li>
+<li>Click <strong>Continue</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Error shown: <em>Error: Postal Code is required</em></li>
+<li>User stays on <em>Checkout: Your Information</em></li>
+</ul>
+<p><strong>Actual result:</strong> As expected<br><strong>Status:</strong> ✅ Pass</p>
+<p><a id="tc-16"></a></p>
+<h3>TC-16 – Checkout rejects customer details that contain only spaces</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Known defect suite · run with <code>npm run test:defects</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/defects/known-defects.spec.js › [D2] TC-16 checkout rejects customer details that contain only spaces</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code> · three spaces in each field</td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Add <em>Sauce Labs Backpack</em> to the cart</li>
+<li>Open the cart and click <strong>Checkout</strong></li>
+<li>Type three spaces into First Name, Last Name and Postal Code</li>
+<li>Click <strong>Continue</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Same <em>is required</em> error as for empty fields</li>
+<li>User stays on <em>Checkout: Your Information</em></li>
+</ul>
+<p><strong>Actual result:</strong> Values accepted; Checkout: Overview opens and the order can be finished<br><strong>Status:</strong> ❌ Fail · <strong>Defect:</strong> D2 (see <code>SUBMISSION.md</code> §3). The automated test fails until this defect is fixed.</p>
+<p><strong>Evidence:</strong> <code>evidence/D2b-whitespace-only-info.png, D2c-whitespace-accepted-overview.png</code></p>
+<p><a id="tc-17"></a></p>
+<h3>TC-17 – Customer information step cannot be skipped by URL</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative / Security</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Known defect suite · run with <code>npm run test:defects</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/defects/known-defects.spec.js › [D2] TC-17 customer information step cannot be skipped by URL</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Add <em>Sauce Labs Backpack</em> to the cart</li>
+<li>In the address bar open <a href="https://www.saucedemo.com/checkout-step-two.html">https://www.saucedemo.com/checkout-step-two.html</a></li>
+<li>Click <strong>Finish</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>User is sent back to <em>Checkout: Your Information</em> until it is completed</li>
+</ul>
+<p><strong>Actual result:</strong> Checkout: Overview opens without customer details, and <strong>Finish</strong> completes the order<br><strong>Status:</strong> ❌ Fail · <strong>Defect:</strong> D2 (see <code>SUBMISSION.md</code> §3). The automated test fails until this defect is fixed.</p>
+<p><strong>Evidence:</strong> <code>evidence/D2a-deeplink-overview-no-info.png</code></p>
+<p><a id="tc-18"></a></p>
+<h3>TC-18 – An order cannot be placed with an empty cart</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Negative</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>Execution</strong></td>
+<td>Automated · Known defect suite · run with <code>npm run test:defects</code></td>
+</tr>
+<tr>
+<td><strong>Automated test</strong></td>
+<td><code>tests/defects/known-defects.spec.js › [D1] TC-18 an order cannot be placed with an empty cart</code></td>
+</tr>
+<tr>
+<td><strong>Number of automated tests</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>Not logged in; empty cart</td>
+</tr>
+<tr>
+<td><strong>Test data</strong></td>
+<td><code>standard_user</code> / <code>secret_sauce</code></td>
+</tr>
+</tbody></table>
+<p><strong>Steps</strong></p>
+<ol>
+<li>Open <a href="https://www.saucedemo.com/">https://www.saucedemo.com/</a></li>
+<li>Enter Username <code>standard_user</code> and Password <code>secret_sauce</code></li>
+<li>Click <strong>Login</strong></li>
+<li>Without adding any product, click the cart icon</li>
+<li>Click <strong>Checkout</strong></li>
+<li>Enter First Name <code>A</code>, Last Name <code>B</code>, Postal Code <code>1</code> and click <strong>Continue</strong></li>
+<li>Click <strong>Finish</strong></li>
+</ol>
+<p><strong>Expected result</strong></p>
+<ul>
+<li>Checkout is disabled or blocked with a message such as <em>Your cart is empty</em></li>
+</ul>
+<p><strong>Actual result:</strong> Overview shows <em>Total: $0.00</em> and Finish shows <em>Thank you for your order!</em><br><strong>Status:</strong> ❌ Fail · <strong>Defect:</strong> D1 (see <code>SUBMISSION.md</code> §3). The automated test fails until this defect is fixed.</p>
+<p><strong>Evidence:</strong> <code>evidence/D1a-empty-cart-overview.png, D1b-empty-cart-order-complete.png</code></p>
+</body></html>

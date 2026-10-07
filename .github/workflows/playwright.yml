@@ -1,0 +1,52 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      all_browsers:
+        description: 'Also run on Firefox'
+        type: boolean
+        default: false
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ALL_BROWSERS: ${{ inputs.all_browsers && '1' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Branded Google Chrome (stable channel) is the primary browser; ffmpeg records failure videos
+      - run: npx playwright install --with-deps chrome ffmpeg
+      - if: ${{ env.ALL_BROWSERS == '1' }}
+        run: npx playwright install --with-deps firefox
+      - run: npm run lint
+
+      - name: Core E2E suite (blocking)
+        run: npm test
+      - name: Regression suite (blocking)
+        if: ${{ !cancelled() }}
+        run: npm run test:regression
+      # Known-defect tests assert correct behaviour and are expected to fail until the bugs are fixed.
+      - name: Known-defect suite (informational, never fails the build)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: npm run test:defects
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-reports
+          path: |
+            playwright-report/
+            playwright-report-regression/
+            playwright-report-defects/
+          retention-days: 14
