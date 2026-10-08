@@ -150,7 +150,7 @@ All defects reproduce on **`standard_user`** in Google Chrome 146. I first found
 
 ## 4. Automation (Task C)
 
-**Repo:** `<add your public GitHub URL here>` (code is in this folder; see `README.md` for setup and run instructions)
+**Repo:** [github.com/stern-batch/souceDemoAutomation](https://github.com/stern-batch/souceDemoAutomation) (see `README.md` for setup and run instructions)
 
 **Flow automated:** `standard_user` login → add *Backpack* + *Fleece Jacket* → check badge = 2 → check the cart has exactly those names, prices and quantity 1 → checkout → check the overview has the same items → item total equals the sum of the prices → tax is 8 % → total equals item total plus tax → Finish → confirmation page → badge gone, no "Remove" buttons, cart empty.
 

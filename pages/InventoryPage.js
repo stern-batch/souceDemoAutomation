@@ -32,6 +32,9 @@ class InventoryPage {
   /** @param {string} name */
   async openProduct(name) {
     await this.item(name).getByTestId('inventory-item-name').click();
+    // The detail page reuses the list's data-test ids, so wait for it before anything queries them.
+    await expect(this.page).toHaveURL(/\/inventory-item\.html\?id=\d+$/);
+    await expect(this.page.getByTestId('back-to-products')).toBeVisible();
   }
 
   async expectLoaded() {
